@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Student enrollment · Quiz Desk{% endblock %}
+{% block content %}
+<section class="narrow-page">
+  <a class="back-link" href="{{ url_for('login') }}">← Back to sign in</a>
+  <div class="section-heading"><p class="eyebrow">STUDENT ACCESS</p><h1>Student enrollment</h1><p>Create your account with the details used for your exam record.</p></div>
+  <form method="post" enctype="multipart/form-data" class="form-stack form-sheet">
+    <label>Full name<input name="name" autocomplete="name" required></label>
+    <div class="form-row"><label>Enrollment ID<input name="enrollment" required></label><label>Batch<input name="batch" required placeholder="e.g. 2024–28"></label></div>
+    <label>Password<input name="password" type="password" minlength="8" autocomplete="new-password" required><small>At least 8 characters</small></label>
+    <label class="upload-field">Profile photo <small>(optional)</small><input name="photo" type="file" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG, or WEBP · up to 5 MB</small></label>
+    <button class="button button-primary button-wide" type="submit">Complete enrollment <span aria-hidden="true">→</span></button>
+  </form>
+</section>
+{% endblock %}

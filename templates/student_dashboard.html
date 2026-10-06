@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Student dashboard · Quiz Desk{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+  <div><p class="eyebrow">STUDENT / {{ g.user.batch }}</p><h1>Good to see you, {{ g.user.name.split(' ')[0] }}.</h1><p>Your published assessments are listed below.</p></div>
+  {% if g.user.photo %}<img class="profile-photo" src="{{ url_for('uploaded_photo', filename=g.user.photo) }}" alt="Profile photo">{% endif %}
+</section>
+<section class="content-section">
+  <div class="section-bar"><div><p class="eyebrow">ASSESSMENTS</p><h2>Available quizzes</h2></div><span class="count-label">{{ quizzes|length }} PUBLISHED</span></div>
+  {% if quizzes %}
+    <div class="exam-list">
+    {% for quiz in quizzes %}
+      <article class="exam-row">
+        <div class="exam-index">{{ "%02d"|format(loop.index) }}</div>
+        <div class="exam-copy"><span class="subject-label">{{ quiz.subject }}</span><h3>{{ quiz.title }}</h3><p>{{ quiz.teacher_name }} <span class="dot-separator">·</span> {{ quiz.duration_minutes }} min</p></div>
+        {% if quiz.attempt_status == 'incomplete' %}
+          <span class="status-pill status-risk">INCOMPLETE · CHEAT FOUND</span>
+          {% if quiz.resume_requested %}<span class="quiet-note">REQUEST SENT</span>{% else %}<form method="post" action="{{ url_for('request_attempt_resume', attempt_id=quiz.attempt_id) }}"><button class="button button-light">Request reopen</button></form>{% endif %}
+        {% elif quiz.submitted_at %}
+          <div class="exam-score"><strong>{{ "%.1f"|format(quiz.score) }}<small> / {{ "%.1f"|format(quiz.total_marks) }}</small></strong><span>SUBMITTED</span></div>
+          <a class="button button-light" href="{{ url_for('view_result', attempt_id=quiz.attempt_id) }}">View result <span aria-hidden="true">↗</span></a>
+        {% elif quiz.attempt_id %}
+          <span class="status-pill status-open">IN PROGRESS</span>
+          <form method="post" action="{{ url_for('start_quiz', quiz_id=quiz.id) }}"><button class="button button-primary">Resume <span aria-hidden="true">→</span></button></form>
+        {% else %}
+          <span class="status-pill">25 MIN</span>
+          <form method="post" action="{{ url_for('start_quiz', quiz_id=quiz.id) }}"><button class="button button-primary">Start quiz <span aria-hidden="true">→</span></button></form>
+        {% endif %}
+      </article>
+    {% endfor %}
+    </div>
+  {% else %}<div class="empty-state"><span class="empty-mark">—</span><h3>No published quizzes yet</h3><p>Published assessments will appear here.</p></div>{% endif %}
+</section>
+{% endblock %}

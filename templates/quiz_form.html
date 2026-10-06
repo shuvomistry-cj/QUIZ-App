@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Create quiz · Quiz Desk{% endblock %}
+{% block content %}
+<section class="narrow-page wide-page">
+  <a class="back-link" href="{{ url_for('admin_dashboard') }}">← Dashboard</a>
+  <div class="section-heading"><p class="eyebrow">NEW ASSESSMENT / 25 MINUTES</p><h1>Build a quiz</h1><p>Paste numbered questions in the format you already have. You can review the answers before publishing.</p></div>
+  <form method="post" class="form-stack">
+    <div class="form-sheet">
+      <div class="form-row"><label>Quiz name<input name="title" required placeholder="e.g. Image Processing — Quick Quiz"></label><label>Subject<input name="subject" required placeholder="e.g. CSET344"></label></div>
+      <label>Teacher name<input name="teacher_name" required value="{{ g.user.name }}"></label>
+    </div>
+    <div class="content-section form-section">
+      <div class="section-bar"><div><p class="eyebrow">TYPE 01 / FILL IN THE BLANKS</p><h2>Paste questions</h2></div><label class="default-marks-field">Default marks per pasted question<input name="default_marks" type="number" min="0" step="any" value="1"></label></div>
+      <textarea name="pasted_questions" rows="12" placeholder="1. The standard Python library used to handle image loading is _________&#10;2. A coordinate-based metric is the _________ distance."></textarea>
+      <p class="field-hint">This starting value applies to each imported question. You can change marks individually before publishing. Numbered questions and wrapped lines are recognized; section headings are skipped.</p>
+    </div>
+    <div class="content-section form-section">
+      <div class="section-bar"><div><p class="eyebrow">TYPE 02 / MULTIPLE CHOICE</p><h2>Add MCQs</h2></div><button class="button button-light" type="button" data-add-mcq>＋ Add question</button></div>
+      <div class="mcq-builder" data-mcq-list></div>
+      <p class="field-hint">Separate choices with a vertical bar, for example: AND | OR | XOR.</p>
+    </div>
+    <div class="form-actions"><a class="text-link" href="{{ url_for('admin_dashboard') }}">Cancel</a><button class="button button-primary" type="submit">Create draft <span aria-hidden="true">→</span></button></div>
+  </form>
+</section>
+<template id="mcq-template"><fieldset class="mcq-row"><legend>New MCQ</legend><button type="button" class="remove-button" data-remove-mcq aria-label="Remove question">×</button><label>Question<input name="mcq_prompt[]" placeholder="Write the question"></label><label>Choices<input name="mcq_options[]" placeholder="Choice A | Choice B | Choice C"></label><div class="form-row"><label>Correct choice<input name="mcq_answer[]" placeholder="Must match one choice"></label><label>Marks<input name="mcq_marks[]" type="number" min="0" step="any" value="1"></label></div></fieldset></template>
+{% endblock %}

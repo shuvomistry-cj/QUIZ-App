@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Teacher dashboard · Quiz Desk{% endblock %}
+{% block content %}
+<section class="dashboard-head admin-head">
+  <div><p class="eyebrow">TEACHER / OVERVIEW</p><h1>Assessment desk</h1><p>Create a quiz, publish it, and follow student results.</p></div>
+  <a class="button button-primary" href="{{ url_for('create_quiz') }}"><span aria-hidden="true">＋</span> Create quiz</a>
+</section>
+<section class="content-section">
+  <div class="section-bar"><div><p class="eyebrow">QUIZ LIBRARY</p><h2>Your assessments</h2></div><span class="count-label">{{ quizzes|length }} TOTAL</span></div>
+  {% if quizzes %}<div class="table-wrap"><table><thead><tr><th>ASSESSMENT</th><th>SUBJECT</th><th>STATUS</th><th>ATTEMPTS</th><th>AVERAGE</th><th></th></tr></thead><tbody>
+    {% for quiz in quizzes %}<tr><td><strong>{{ quiz.title }}</strong><small>{{ quiz.teacher_name }}</small></td><td>{{ quiz.subject }}</td><td><span class="status-pill {{ 'status-live' if quiz.status == 'published' else '' }}">{{ quiz.status }}</span></td><td>{{ quiz.attempts }}</td><td>{{ quiz.average_score if quiz.average_score is not none else '—' }}</td><td><a class="table-link" href="{{ url_for('edit_quiz', quiz_id=quiz.id) }}">{{ 'Review' if quiz.status == 'draft' else 'Open' }} <span aria-hidden="true">→</span></a></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty-state"><span class="empty-mark">＋</span><h3>Your quiz library is empty</h3><p>Create your first assessment to get started.</p><a class="text-link" href="{{ url_for('create_quiz') }}">Create a quiz →</a></div>{% endif %}
+</section>
+<section class="content-section results-section">
+  <div class="section-bar"><div><p class="eyebrow">STUDENT RECORD</p><h2>Recent results</h2></div><span class="count-label">LATEST 100 SUBMISSIONS</span></div>
+  {% if marks %}<div class="table-wrap"><table class="results-table"><thead><tr><th>STUDENT</th><th>ENROLLMENT</th><th>BATCH</th><th>ASSESSMENT</th><th>STATUS / MARKS</th><th>FOCUS</th><th></th></tr></thead><tbody>
+    {% for mark in marks %}<tr><td><div class="student-cell">{% if mark.photo %}<img class="table-photo" src="{{ url_for('uploaded_photo', filename=mark.photo) }}" alt="">{% else %}<span class="avatar-fallback">{{ mark.name[:1]|upper }}</span>{% endif %}<strong>{{ mark.name }}</strong></div></td><td>{{ mark.enrollment }}</td><td>{{ mark.batch }}</td><td><strong>{{ mark.title }}</strong><small>{{ mark.subject }}</small></td><td>{% if mark.status == 'incomplete' %}<span class="status-pill status-risk">INCOMPLETE · CHEAT FOUND</span>{% if mark.resume_requested %}<small>Student requested reopen</small>{% endif %}{% else %}<strong>{{ "%.1f"|format(mark.score) }} <small>/ {{ "%.1f"|format(mark.total_marks) }}</small></strong>{% endif %}</td><td>{% if mark.focus_violation %}<span class="status-pill status-risk">CHEAT FOUND</span>{% else %}<span class="quiet-note">Clear</span>{% endif %}</td><td>{% if mark.status == 'incomplete' and mark.resume_requested %}<form method="post" action="{{ url_for('resume_incomplete_attempt', attempt_id=mark.id) }}"><button class="button button-primary">Reopen exam</button></form>{% elif mark.status == 'incomplete' %}<span class="quiet-note">Awaiting request</span>{% else %}<a class="table-link" href="{{ url_for('view_result', attempt_id=mark.id) }}">Review <span aria-hidden="true">↗</span></a>{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="quiet-note">Submitted quiz results will appear here.</p>{% endif %}
+</section>
+{% endblock %}

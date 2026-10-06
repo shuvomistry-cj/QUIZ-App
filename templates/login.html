@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Sign in · Quiz Desk{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-intro">
+    <p class="eyebrow">CSET344 / COURSE ASSESSMENT</p>
+    <h1>Image &<br>Video Processing<span class="period">.</span></h1>
+    <p class="intro-copy">A clear place to take your course quizzes and review your results.</p>
+    <div class="intro-rule"><span>01</span><span>ASSESS · REVIEW · IMPROVE</span></div>
+  </div>
+  <div class="auth-panel">
+    <p class="eyebrow">WELCOME BACK</p>
+    <h2>Sign in to continue</h2>
+    <form method="post" class="form-stack">
+      <label>Username<input name="username" autocomplete="username" required placeholder="Enrollment ID or teach"></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required placeholder="Your password"></label>
+      <button class="button button-primary button-wide" type="submit">Sign in <span aria-hidden="true">→</span></button>
+    </form>
+    <p class="auth-foot">New student? <a href="{{ url_for('register') }}">Enroll here</a></p>
+  </div>
+</section>
+{% endblock %}

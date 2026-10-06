@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ quiz.title }} · Quiz Desk{% endblock %}
+{% block content %}
+<section class="quiz-topline"><div><p class="eyebrow">{{ quiz.subject }} / ASSESSMENT</p><h1>{{ quiz.title }}</h1><p>{{ questions|length }} questions <span class="dot-separator">·</span> {{ quiz.duration_minutes }} minutes</p></div><div class="timer" data-countdown="{{ remaining_seconds }}"><span>TIME LEFT</span><strong data-timer-display>25:00</strong></div></section>
+<p class="focus-notice" data-focus-notice data-tab-switches="{{ tab_switches }}">Stay on this exam tab. You have 3 tab-switch warnings. The third switch marks the exam incomplete and alerts your teacher.</p>
+<form method="post" class="quiz-form" data-quiz-form data-save-url="{{ url_for('save_attempt_progress', attempt_id=attempt.id) }}" data-switch-url="{{ url_for('record_tab_switch', attempt_id=attempt.id) }}" data-state-url="{{ url_for('attempt_state', attempt_id=attempt.id) }}" data-result-url="{{ url_for('view_result', attempt_id=attempt.id) }}" data-resume-position="{{ resume_position }}">
+  {% for question in questions %}<fieldset class="quiz-question" data-question-index="{{ loop.index0 }}"><legend><span class="question-number">{{ "%02d"|format(loop.index) }}</span><span>{{ "%.1f"|format(question.marks) }} MARKS</span></legend><h2>{{ question.prompt }}</h2>
+    {% if question.kind == 'mcq' %}<div class="choice-list">{% for option in question.options|from_json %}<label class="choice-option"><input type="radio" name="answer_{{ question.id }}" value="{{ option }}" {% if saved_answers.get(question.id|string) == option %}checked{% endif %}><span>{{ option }}</span></label>{% endfor %}</div>
+    {% else %}<label class="answer-input"><span>Your answer</span><input name="answer_{{ question.id }}" autocomplete="off" placeholder="Type your answer here" value="{{ saved_answers.get(question.id|string, '') }}"></label>{% endif %}
+  </fieldset>{% endfor %}
+  <div class="submit-bar"><p>Your answers are submitted once. Check them before finishing.</p><button class="button button-primary" type="submit">Submit quiz <span aria-hidden="true">→</span></button></div>
+</form>
+{% endblock %}

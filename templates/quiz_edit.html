@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Edit quiz · Quiz Desk{% endblock %}
+{% block content %}
+<section class="narrow-page wide-page">
+  <a class="back-link" href="{{ url_for('admin_dashboard') }}">← Dashboard</a>
+  <div class="section-heading"><p class="eyebrow">{{ 'PUBLISHED ASSESSMENT' if quiz.status == 'published' else 'DRAFT ASSESSMENT' }} / {{ quiz.duration_minutes }} MINUTES</p><h1>{{ quiz.title }}</h1><p>Add the expected answers, check each mark value, then publish when ready.</p></div>
+  <form method="post" action="{{ url_for('update_answer_visibility', quiz_id=quiz.id) }}" class="answer-visibility-form">
+    <div><p class="eyebrow">STUDENT RESULT VISIBILITY</p><p>By default, students see their score only. Turn this on to let them review answers after submission.</p></div>
+    <input type="hidden" name="show_answers" value="0">
+    <label class="toggle-control"><input type="checkbox" name="show_answers" value="1" {% if quiz.show_answers %}checked{% endif %}><span class="toggle-track" aria-hidden="true"></span><span class="toggle-label">Show answer review</span></label>
+    <button class="button button-light" type="submit">Save visibility</button>
+  </form>
+  <form method="post" class="form-stack">
+    <div class="form-sheet"><div class="form-row"><label>Quiz name<input name="title" value="{{ quiz.title }}" required {{ 'disabled' if quiz.status == 'published' }}></label><label>Subject<input name="subject" value="{{ quiz.subject }}" required {{ 'disabled' if quiz.status == 'published' }}></label></div><label>Teacher name<input name="teacher_name" value="{{ quiz.teacher_name }}" required {{ 'disabled' if quiz.status == 'published' }}></label></div>
+    <div class="section-bar question-heading"><div><p class="eyebrow">ANSWER KEY</p><h2>{{ questions|length }} questions</h2><p class="quiet-note">Set marks independently for each question. Whole and decimal values are accepted.</p></div>{% if quiz.status == 'draft' %}<button class="button button-light" type="submit" form="generate-answers">✦ Fill missing answers</button>{% else %}<span class="quiet-note">Answers stay hidden from students until submission</span>{% endif %}</div>
+    {% for question in questions %}<fieldset class="question-editor" {% if quiz.status == 'published' %}disabled{% endif %}>
+      <legend><span class="question-number">{{ "%02d"|format(loop.index) }}</span><span>{{ 'MULTIPLE CHOICE' if question.kind == 'mcq' else 'FILL IN THE BLANK' }}</span></legend>
+      <input type="hidden" name="question_id[]" value="{{ question.id }}">
+      <input type="hidden" name="kind[]" value="{{ question.kind }}">
+      <label>Question<textarea name="prompt[]" rows="2" required>{{ question.prompt }}</textarea></label>
+      {% if question.kind == 'mcq' %}<label>Choices <small>Separate with |</small><input name="options[]" value="{{ question.options|from_json|join(' | ') }}" placeholder="Choice A | Choice B | Choice C"></label>{% else %}<input type="hidden" name="options[]" value="">{% endif %}
+      <div class="form-row answer-row"><label>Expected answer<input name="answer_key[]" value="{{ question.answer_key }}" required placeholder="Type the correct answer"></label><label>Marks<input name="marks[]" type="number" min="0" step="any" value="{{ question.marks }}" required></label></div>
+    </fieldset>{% endfor %}
+    {% if quiz.status == 'draft' %}<div class="form-actions"><span class="field-hint">Changes to answers and marks are saved together. AI grading is optional.</span><button class="button button-primary" type="submit">Save answers &amp; marks <span aria-hidden="true">→</span></button></div>{% else %}<p class="quiet-note">This published quiz is locked because students may already have attempts.</p>{% endif %}
+  </form>
+  {% if quiz.status == 'draft' %}<form id="generate-answers" method="post" action="{{ url_for('generate_missing_answers', quiz_id=quiz.id) }}"></form>{% endif %}
+  {% if quiz.status == 'draft' %}<form method="post" action="{{ url_for('publish_quiz', quiz_id=quiz.id) }}" class="publish-bar"><div><p class="eyebrow">READY TO RELEASE?</p><p>Students will see this quiz as soon as it is published.</p></div><button class="button button-accent" type="submit">Publish quiz <span aria-hidden="true">↗</span></button></form>{% endif %}
+</section>
+{% endblock %}
